@@ -50,6 +50,9 @@ data/
 *.pkl
 *.pickle
 
+# Generated ideas
+ideas/
+
 # OS
 .DS_Store
 Thumbs.db
