@@ -10,30 +10,24 @@ It implements the [Evaluator-Optimizer](https://www.anthropic.com/research/build
 
 ```mermaid
 flowchart LR
-    subgraph Round 1
+    subgraph Round1 [Round 1]
         G1[GPT-5.2] --> J1{Judge\nGemini}
         GM1[Gemini] --> J1
     end
 
-    subgraph Round 2
+    subgraph Round2 [Round 2]
         G2[GPT-5.2] --> J2{Judge\nGemini}
         GM2[Gemini] --> J2
     end
 
-    subgraph Round 3
-        G3[GPT-5.2] --> J3{Judge\nGemini}
-        GM3[Gemini] --> J3
-    end
-
-    subgraph Round N
+    subgraph RoundN [Round N]
         GN[GPT-5.2] --> JN{Judge\nGemini}
         GMN[Gemini] --> JN
     end
 
-    J1 -- "✗ reject\n+ feedback" --> Round 2
-    J2 -- "✗ reject\n+ feedback" --> Round 3
-    J3 -- "✗ reject\n+ feedback" --> Round N
-    JN -- "✓ accept!" --> Ship["Your next\nside project"]
+    J1 -- "✗ reject + feedback" --> Round2
+    J2 -- "···" --> RoundN
+    JN -- "✓ accept!" --> Ship["Telegram / Console"]
 ```
 
 1. **Generate** — Two AI models (GPT-5.2 and Gemini) independently brainstorm ideas in parallel, each with a structured format covering product name, pricing, ad strategy, and a concrete 2-week build plan.
