@@ -26,12 +26,6 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/agents"]
 
-[tool.uv.scripts]
-test = "pytest -v"
-lint = "ruff check src/ tests/"
-format = "ruff format src/ tests/"
-generate = "python -m agents.idea_refiner"
-
 [tool.ruff]
 line-length = 100
 target-version = "py313"
