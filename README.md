@@ -1,82 +1,116 @@
-# Amadeusz Agents
+# Idea Refiner
 
-A Python project for experimenting with notebooks, AI agents, and OpenAI integration.
+**Your personal AI brainstorming team that won't let you ship a mediocre idea.**
 
-## Setup
+Idea Refiner is an automated pipeline that generates micro-SaaS and micro-product business ideas using multiple AI models, pits them against a ruthless AI judge, and iterates with targeted feedback until it finds something genuinely worth building — or gives you the best of what it found.
 
-This project uses [uv](https://github.com/astral-sh/uv) for fast Python package management.
+## How it works
 
-### Prerequisites
-
-- Python 3.12
-- uv package manager
-
-### Installation
-
-1. Install uv (if not already installed):
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+   Round 1            Round 2            Round 3            Round 4
+  ┌─────────┐       ┌─────────┐       ┌─────────┐       ┌─────────┐
+  │ GPT-5.2 │──┐    │ GPT-5.2 │──┐    │ GPT-5.2 │──┐    │ GPT-5.2 │──┐
+  └─────────┘  │    └─────────┘  │    └─────────┘  │    └─────────┘  │
+               ▼                 ▼                 ▼                 ▼
+           ┌───────┐         ┌───────┐         ┌───────┐         ┌───────┐
+           │ JUDGE │         │ JUDGE │         │ JUDGE │         │ JUDGE │
+           │Gemini │         │Gemini │         │Gemini │         │Gemini │
+           └───┬───┘         └───┬───┘         └───┬───┘         └───┬───┘
+  ┌─────────┐  │    ┌─────────┐  │    ┌─────────┐  │    ┌─────────┐  │
+  │ Gemini  │──┘    │ Gemini  │──┘    │ Gemini  │──┘    │ Gemini  │──┘
+  └─────────┘       └─────────┘       └─────────┘       └─────────┘
+       │                 │                 │                 │
+    ✗ reject          ✗ reject          ✗ reject          ✓ accept!
+    + feedback        + feedback        + feedback           │
+                                                             ▼
+                                                     ┌──────────────┐
+                                                     │  Your next   │
+                                                     │  side project │
+                                                     └──────────────┘
 ```
 
-2. Create a virtual environment and install dependencies:
+1. **Generate** — Two AI models (GPT-5.2 and Gemini) independently brainstorm ideas in parallel, each with a structured format covering product name, pricing, ad strategy, and a concrete 2-week build plan.
+
+2. **Judge** — A separate AI judge scores each idea on three criteria: ease of customer acquisition, market demand, and build simplicity. The bar is high — all three scores must be 9+ out of 10.
+
+3. **Iterate** — If no idea passes, the judge provides specific feedback ("the ad hook is unclear", "chicken-and-egg problem") and both generators try again with that feedback baked in.
+
+4. **Ship** — When an idea passes the quality gate (or after max retries), the winner is displayed and optionally pushed to Telegram.
+
+## What kind of ideas?
+
+Ideas optimized for solo developers who want:
+- An MVP buildable in **1-2 weeks**
+- **Subscription pricing** ($1-29/month) — recurring revenue
+- Customers acquirable through **paid ads** (Facebook, Instagram, Google)
+- A clear **path to $100/month** with simple math
+- Something that's genuinely **fun to build and run**
+
+Every other run focuses on a random theme from a pool of 100+ niches — everything from "pet owners" to "Etsy sellers" to "procrastination" to "meal preppers".
+
+## Quick start
+
 ```bash
-uv venv
-source .venv/bin/activate  # On Linux/Mac
+# Clone and setup
+git clone <repo-url> && cd amadeusz_agents
+uv venv && source .venv/bin/activate
 uv pip install -e .
+
+# Configure API keys
+cp .env.example .env
+# Edit .env with your OpenAI and Google API keys
+
+# Generate ideas
+python -m agents.idea_refiner
 ```
 
-3. For development dependencies:
+Or use the CLI shortcut (after install):
+
 ```bash
-uv pip install -e ".[dev]"
+idea-refiner
 ```
 
-### Project Structure
+## Configuration
+
+Copy `.env.example` to `.env` and fill in your keys:
+
+| Variable | Required | Description |
+|---|---|---|
+| `OPENAI_API_KEY` | Yes | OpenAI API key (for GPT-5.2) |
+| `GOOGLE_API_KEY` | Yes | Google API key (for Gemini via OpenAI-compatible endpoint) |
+| `TELEGRAM_BOT_TOKEN` | No | Telegram bot token for push notifications |
+| `TELEGRAM_CHAT_ID` | No | Telegram chat ID to receive ideas |
+
+## Project structure
 
 ```
-amadeusz_agents/
-├── src/                  # Python source code
-│   └── agents/          # Main package
-├── notebooks/           # Jupyter notebooks
-├── data/               # Data files (gitignored)
-├── tests/              # Unit tests
-├── pyproject.toml      # Project configuration
-└── README.md           # This file
+src/agents/idea_refiner/
+├── main.py                  # Entry point — runs the pipeline
+├── config.py                # Prompts, themes, and settings
+├── generation/
+│   ├── runner.py            # Parallel async idea generation
+│   ├── gpt52.py             # GPT-5.2 wrapper
+│   ├── gemini.py            # Gemini wrapper
+│   ├── clients.py           # API client factory
+│   ├── models.py            # Model registry
+│   └── prompt.py            # Prompt builder
+├── judging/
+│   ├── judge.py             # AI judge with label shuffling
+│   └── quality_gate.py      # Score threshold enforcement
+├── pipeline/
+│   ├── run_round.py         # Generate → judge → verdict loop
+│   ├── generate_step.py     # Generation orchestration
+│   ├── judge_step.py        # Judging orchestration
+│   ├── verdict.py           # Accept/reject routing
+│   ├── accept.py            # Winner selection
+│   ├── retry.py             # Feedback-driven retry logic
+│   └── state.py             # Pipeline state management
+└── output/
+    ├── display.py           # Output orchestrator
+    ├── console.py           # Terminal scoreboard
+    └── telegram.py          # Telegram notifications
 ```
 
-## Usage
+## License
 
-### Running Notebooks
-
-1. Activate the virtual environment
-2. Launch Jupyter:
-```bash
-jupyter notebook
-```
-or
-```bash
-jupyter lab
-```
-
-### Environment Variables
-
-Create a `.env` file in the project root for sensitive data like API keys:
-```
-OPENAI_API_KEY=your_api_key_here
-```
-
-## Development
-
-### Running Tests
-```bash
-pytest
-```
-
-### Code Formatting
-```bash
-black .
-```
-
-### Linting
-```bash
-ruff check .
-```
+MIT
