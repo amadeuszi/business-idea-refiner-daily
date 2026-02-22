@@ -1,5 +1,4 @@
-import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from agents.idea_refiner.pipeline.state import init_state
 from agents.idea_refiner.pipeline.accept import accept

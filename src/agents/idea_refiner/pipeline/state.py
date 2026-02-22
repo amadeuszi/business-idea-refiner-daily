@@ -17,10 +17,10 @@ def init_state(theme: str | None) -> dict:
         get_client(name)
     log.info("   ✅ All clients ready")
     return {
-        "attempts": {l: 0 for l in LABELS},
-        "messages": {l: [] for l in LABELS},
+        "attempts": {label: 0 for label in LABELS},
+        "messages": {label: [] for label in LABELS},
         "ideas": {},
-        "needs_gen": {l: True for l in LABELS},
+        "needs_gen": {label: True for label in LABELS},
         "winner_label": None,
         "winning_idea": None,
         "winner_ev": None,
