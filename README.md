@@ -11,22 +11,16 @@ It implements the [Evaluator-Optimizer](https://www.anthropic.com/research/build
 ```mermaid
 flowchart LR
     subgraph Round1 [Round 1]
-        G1[GPT-5.2] --> J1{Judge\nGemini}
+        G1[GPT-5.2] --> J1{Judge Gemini}
         GM1[Gemini] --> J1
     end
 
-    subgraph Round2 [Round 2]
-        G2[GPT-5.2] --> J2{Judge\nGemini}
-        GM2[Gemini] --> J2
-    end
-
     subgraph RoundN [Round N]
-        GN[GPT-5.2] --> JN{Judge\nGemini}
+        GN[GPT-5.2] --> JN{Judge Gemini}
         GMN[Gemini] --> JN
     end
 
-    J1 -- "✗ reject + feedback" --> Round2
-    J2 -- "···" --> RoundN
+    J1 -- "✗ reject + feedback" --> RoundN
     JN -- "✓ accept!" --> Ship["Telegram / Console"]
 ```
 
