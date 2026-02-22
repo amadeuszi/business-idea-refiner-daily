@@ -1,32 +1,39 @@
 # Idea Refiner
 
-**Your personal AI brainstorming team that won't let you ship a mediocre idea.**
+**Automatic business idea inspiration sent to you daily via Telegram bot.**
 
-Idea Refiner is an automated pipeline that generates micro-SaaS and micro-product business ideas using multiple AI models, pits them against a ruthless AI judge, and iterates with targeted feedback until it finds something genuinely worth building — or gives you the best of what it found.
+Idea Refiner is an agentic AI pipeline that generates micro-SaaS and micro-product business ideas using multiple AI models, pits them against a ruthless AI judge, and iterates with targeted feedback until it finds something genuinely worth building — or gives you the best of what it found.
+
+It implements the [Evaluator-Optimizer](https://www.anthropic.com/research/building-effective-agents#workflow-evaluator-optimizer) agentic pattern: generators propose ideas in parallel, an LLM judge scores and critiques them, and the feedback loop drives each subsequent round closer to a viable idea.
 
 ## How it works
 
-```
-   Round 1            Round 2            Round 3            Round 4
-  ┌─────────┐       ┌─────────┐       ┌─────────┐       ┌─────────┐
-  │ GPT-5.2 │──┐    │ GPT-5.2 │──┐    │ GPT-5.2 │──┐    │ GPT-5.2 │──┐
-  └─────────┘  │    └─────────┘  │    └─────────┘  │    └─────────┘  │
-               ▼                 ▼                 ▼                 ▼
-           ┌───────┐         ┌───────┐         ┌───────┐         ┌───────┐
-           │ JUDGE │         │ JUDGE │         │ JUDGE │         │ JUDGE │
-           │Gemini │         │Gemini │         │Gemini │         │Gemini │
-           └───┬───┘         └───┬───┘         └───┬───┘         └───┬───┘
-  ┌─────────┐  │    ┌─────────┐  │    ┌─────────┐  │    ┌─────────┐  │
-  │ Gemini  │──┘    │ Gemini  │──┘    │ Gemini  │──┘    │ Gemini  │──┘
-  └─────────┘       └─────────┘       └─────────┘       └─────────┘
-       │                 │                 │                 │
-    ✗ reject          ✗ reject          ✗ reject          ✓ accept!
-    + feedback        + feedback        + feedback           │
-                                                             ▼
-                                                     ┌──────────────┐
-                                                     │  Your next   │
-                                                     │  side project │
-                                                     └──────────────┘
+```mermaid
+flowchart LR
+    subgraph Round 1
+        G1[GPT-5.2] --> J1{Judge\nGemini}
+        GM1[Gemini] --> J1
+    end
+
+    subgraph Round 2
+        G2[GPT-5.2] --> J2{Judge\nGemini}
+        GM2[Gemini] --> J2
+    end
+
+    subgraph Round 3
+        G3[GPT-5.2] --> J3{Judge\nGemini}
+        GM3[Gemini] --> J3
+    end
+
+    subgraph Round N
+        GN[GPT-5.2] --> JN{Judge\nGemini}
+        GMN[Gemini] --> JN
+    end
+
+    J1 -- "✗ reject\n+ feedback" --> Round 2
+    J2 -- "✗ reject\n+ feedback" --> Round 3
+    J3 -- "✗ reject\n+ feedback" --> Round N
+    JN -- "✓ accept!" --> Ship["Your next\nside project"]
 ```
 
 1. **Generate** — Two AI models (GPT-5.2 and Gemini) independently brainstorm ideas in parallel, each with a structured format covering product name, pricing, ad strategy, and a concrete 2-week build plan.
