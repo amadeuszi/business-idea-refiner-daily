@@ -76,11 +76,76 @@ Copy `.env.example` to `.env` and fill in your keys:
 | `TELEGRAM_BOT_TOKEN` | No | Telegram bot token for push notifications |
 | `TELEGRAM_CHAT_ID` | No | Telegram chat ID to receive ideas |
 
+## Deploy to Google Cloud Run Functions
+
+### Prerequisites
+
+- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed and authenticated
+- A GCP project with the **Cloud Functions** and **Cloud Build** APIs enabled
+- API keys stored in [Secret Manager](https://cloud.google.com/secret-manager) (recommended)
+
+### Store secrets
+
+```bash
+echo -n "sk-..." | gcloud secrets create OPENAI_API_KEY --data-file=-
+echo -n "AI..." | gcloud secrets create GOOGLE_API_KEY --data-file=-
+
+# Optional — for Telegram notifications
+echo -n "123456:ABC..." | gcloud secrets create TELEGRAM_BOT_TOKEN --data-file=-
+echo -n "987654321"     | gcloud secrets create TELEGRAM_CHAT_ID --data-file=-
+```
+
+### Deploy
+
+```bash
+gcloud functions deploy idea-refiner \
+  --gen2 \
+  --runtime python313 \
+  --trigger-http \
+  --entry-point idea_refiner \
+  --region us-central1 \
+  --timeout 300 \
+  --memory 512Mi \
+  --set-secrets 'OPENAI_API_KEY=OPENAI_API_KEY:latest,GOOGLE_API_KEY=GOOGLE_API_KEY:latest' \
+  --allow-unauthenticated
+```
+
+> Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` to `--set-secrets` if you want
+> Telegram notifications. Remove `--allow-unauthenticated` if the function should
+> require IAM authentication.
+
+### Invoke
+
+```bash
+curl https://REGION-PROJECT_ID.cloudfunctions.net/idea-refiner
+```
+
+### Run locally
+
+```bash
+uv sync --dev
+functions-framework --target idea_refiner --debug
+```
+
+### Schedule daily runs (optional)
+
+Use [Cloud Scheduler](https://cloud.google.com/scheduler) to trigger the function on a cron schedule:
+
+```bash
+gcloud scheduler jobs create http idea-refiner-daily \
+  --schedule "0 8 * * *" \
+  --uri "https://REGION-PROJECT_ID.cloudfunctions.net/idea-refiner" \
+  --http-method POST \
+  --time-zone "UTC"
+```
+
 ## Project structure
 
 ```
+main.py                          # Cloud Run Function entry point
+requirements.txt                 # Dependencies for Cloud Run Functions deploy
 src/agents/idea_refiner/
-├── main.py                  # Entry point — runs the pipeline
+├── main.py                  # CLI entry point — runs the pipeline
 ├── config.py                # Prompts, themes, and settings
 ├── generation/
 │   ├── runner.py            # Parallel async idea generation

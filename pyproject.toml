@@ -18,8 +18,12 @@ idea-refiner = "agents.idea_refiner:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[project.optional-dependencies]
+gcf = ["functions-framework>=3.0"]
+
 [dependency-groups]
 dev = [
+    "functions-framework>=3.0",
     "pytest>=9.0.2",
     "ruff>=0.15.2",
 ]

@@ -1,0 +1,4 @@
+functions-framework>=3.0
+openai>=2.17.0
+python-dotenv>=1.1.0
+python-telegram-bot>=22.6

@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 
-MAX_RETRIES = 3
+MAX_RETRIES = 2
 
 RANDOM_THEMES = [
     # ── Broad / mainstream ──
